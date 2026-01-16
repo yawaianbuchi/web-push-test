@@ -35,10 +35,19 @@ export async function subscribeUser(sub: WebPushSubscription) {
   return { success: true };
 }
 
-export async function unsubscribeUser() {
-  subscription = [];
-  // In a production environment, you would want to remove the subscription from the database
-  // For example: await db.subscriptions.delete({ where: { ... } })
+export async function unsubscribeUser(endpoint: string) {
+  // console.log(subscription, "Unsubscribing user");
+  // subscription = [];
+  // // In a production environment, you would want to remove the subscription from the database
+  // // For example: await db.subscriptions.delete({ where: { ... } })
+  // return { success: true };
+
+  console.log("Before unsubscribe:", subscription.length);
+
+  subscription = subscription.filter((sub) => sub.endpoint !== endpoint);
+
+  console.log("After unsubscribe:", subscription.length);
+
   return { success: true };
 }
 
@@ -47,6 +56,7 @@ export async function sendNotification(message: string) {
     throw new Error("No subscription available");
   }
 
+  console.log(message, subscription);
   try {
     await Promise.allSettled(
       subscription.map((sub) =>
