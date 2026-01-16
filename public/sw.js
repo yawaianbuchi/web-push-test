@@ -1,4 +1,5 @@
 self.addEventListener("push", function (event) {
+  console.log("first------>>>>>");
   if (event.data) {
     const data = event.data.json();
     const options = {
@@ -11,6 +12,8 @@ self.addEventListener("push", function (event) {
         primaryKey: "2",
       },
     };
+
+    console.log("Push notification received:", data);
     event.waitUntil(self.registration.showNotification(data.title, options));
   }
 });
@@ -18,5 +21,5 @@ self.addEventListener("push", function (event) {
 self.addEventListener("notificationclick", function (event) {
   console.log("Notification click received.");
   event.notification.close();
-  event.waitUntil(clients.openWindow("<https://your-website.com>"));
+  event.waitUntil(clients.openWindow("https://web-push-test-sand.vercel.app/"));
 });

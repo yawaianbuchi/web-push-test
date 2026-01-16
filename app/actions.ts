@@ -3,7 +3,7 @@
 import webpush, { PushSubscription as WebPushSubscription } from "web-push";
 
 webpush.setVapidDetails(
-  "yawaiaung.anbuchi@gmail.com",
+  "https://web-push-test-sand.vercel.app",
   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
   process.env.VAPID_PRIVATE_KEY!
 );
@@ -28,7 +28,6 @@ export async function sendNotification(message: string) {
   if (!subscription) {
     throw new Error("No subscription available");
   }
-
   try {
     await webpush.sendNotification(
       subscription,
