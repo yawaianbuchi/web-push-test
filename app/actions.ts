@@ -8,17 +8,35 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY!
 );
 
-let subscription: WebPushSubscription | null = null;
+let subscription: WebPushSubscription[] = [];
 
 export async function subscribeUser(sub: WebPushSubscription) {
-  subscription = sub;
-  // In a production environment, you would want to store the subscription in a database
-  // For example: await db.subscriptions.create({ data: sub })
+  // subscription.push(sub);
+  // // In a production environment, you would want to store the subscription in a database
+  // // For example: await db.subscriptions.create({ data: sub })
+  // return { success: true };
+
+  const formattedSub: WebPushSubscription = {
+    endpoint: sub.endpoint,
+    expirationTime: sub.expirationTime,
+    keys: {
+      p256dh: sub.keys?.p256dh,
+      auth: sub.keys?.auth,
+    },
+  };
+
+  // Avoid duplicates
+  const exists = subscription.find((s) => s.endpoint === formattedSub.endpoint);
+
+  if (!exists) {
+    subscription.push(formattedSub);
+  }
+
   return { success: true };
 }
 
 export async function unsubscribeUser() {
-  subscription = null;
+  subscription = [];
   // In a production environment, you would want to remove the subscription from the database
   // For example: await db.subscriptions.delete({ where: { ... } })
   return { success: true };
@@ -28,15 +46,28 @@ export async function sendNotification(message: string) {
   if (!subscription) {
     throw new Error("No subscription available");
   }
+
   try {
-    await webpush.sendNotification(
-      subscription,
-      JSON.stringify({
-        title: "Test Notification",
-        body: message,
-        icon: "/icon.png",
-      })
+    await Promise.allSettled(
+      subscription.map((sub) =>
+        webpush.sendNotification(
+          sub,
+          JSON.stringify({
+            title: "Test Notification",
+            body: message,
+            icon: "/icon.png",
+          })
+        )
+      )
     );
+    // await webpush.sendNotification(
+    //   subscription,
+    //   JSON.stringify({
+    //     title: "Test Notification",
+    //     body: message,
+    //     icon: "/icon.png",
+    //   })
+    // );
     return { success: true };
   } catch (error) {
     console.error("Error sending push notification:", error);

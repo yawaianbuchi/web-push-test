@@ -1,5 +1,4 @@
 self.addEventListener("push", function (event) {
-  console.log("first------>>>>>");
   if (event.data) {
     const data = event.data.json();
     const options = {
